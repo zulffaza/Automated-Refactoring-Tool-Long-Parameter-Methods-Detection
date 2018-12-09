@@ -20,9 +20,9 @@ import static org.junit.Assert.assertNull;
  * @since 7 November 2018
  */
 
-public class JavaLongParameterMethodsDetectionTest {
+public class LongParameterMethodsDetectionImplTest {
 
-    private JavaLongParameterMethodsDetection longParameterMethodsDetection;
+    private LongParameterMethodsDetectionImpl longParameterMethodsDetection;
 
     private static final Integer FIRST_INDEX = 0;
     private static final Integer SECOND_INDEX = 1;
@@ -35,7 +35,7 @@ public class JavaLongParameterMethodsDetectionTest {
 
     @Before
     public void setUp() {
-        longParameterMethodsDetection = new JavaLongParameterMethodsDetection();
+        longParameterMethodsDetection = new LongParameterMethodsDetectionImpl();
         methodModels = createMethodModels();
     }
 
