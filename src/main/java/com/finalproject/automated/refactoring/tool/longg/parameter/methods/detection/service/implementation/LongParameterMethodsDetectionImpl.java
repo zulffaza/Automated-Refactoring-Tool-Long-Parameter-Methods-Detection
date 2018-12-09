@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class JavaLongParameterMethodsDetection implements LongParameterMethodsDetection {
+public class LongParameterMethodsDetectionImpl implements LongParameterMethodsDetection {
 
     private static final Integer FIRST_INDEX = 0;
 
@@ -37,6 +37,6 @@ public class JavaLongParameterMethodsDetection implements LongParameterMethodsDe
     }
 
     private Boolean isLongParameterMethod(MethodModel methodModel, Long threshold) {
-        return methodModel.getParameters().size() >= threshold;
+        return methodModel.getParameters().size() > threshold;
     }
 }
