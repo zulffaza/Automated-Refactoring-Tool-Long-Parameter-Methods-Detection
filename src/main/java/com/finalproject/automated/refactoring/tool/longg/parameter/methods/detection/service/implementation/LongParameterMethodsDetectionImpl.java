@@ -1,12 +1,12 @@
 package com.finalproject.automated.refactoring.tool.longg.parameter.methods.detection.service.implementation;
 
 import com.finalproject.automated.refactoring.tool.longg.parameter.methods.detection.service.LongParameterMethodsDetection;
+import com.finalproject.automated.refactoring.tool.model.CodeSmellName;
 import com.finalproject.automated.refactoring.tool.model.MethodModel;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author fazazulfikapp
@@ -17,26 +17,24 @@ import java.util.stream.Collectors;
 @Service
 public class LongParameterMethodsDetectionImpl implements LongParameterMethodsDetection {
 
-    private static final Integer FIRST_INDEX = 0;
-
     @Override
-    public MethodModel detect(MethodModel methodModel, Long threshold) {
-        try {
-            return detect(Collections.singletonList(methodModel), threshold)
-                    .get(FIRST_INDEX);
-        } catch (IndexOutOfBoundsException e) {
-            return null;
-        }
+    public void detect(MethodModel methodModel, Long threshold) {
+        detect(Collections.singletonList(methodModel), threshold);
     }
 
     @Override
-    public List<MethodModel> detect(List<MethodModel> methodModels, Long threshold) {
-        return methodModels.stream()
+    public void detect(List<MethodModel> methodModels, Long threshold) {
+        methodModels.parallelStream()
                 .filter(methodModel -> isLongParameterMethod(methodModel, threshold))
-                .collect(Collectors.toList());
+                .forEach(this::checkMethod);
     }
 
     private Boolean isLongParameterMethod(MethodModel methodModel, Long threshold) {
         return methodModel.getParameters().size() > threshold;
+    }
+
+    private void checkMethod(MethodModel methodModel) {
+        methodModel.getCodeSmells()
+                .add(CodeSmellName.LONG_PARAMETER_METHOD);
     }
 }

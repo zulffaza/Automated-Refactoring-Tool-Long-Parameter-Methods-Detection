@@ -1,5 +1,6 @@
 package com.finalproject.automated.refactoring.tool.longg.parameter.methods.detection.service.implementation;
 
+import com.finalproject.automated.refactoring.tool.model.CodeSmellName;
 import com.finalproject.automated.refactoring.tool.model.MethodModel;
 import com.finalproject.automated.refactoring.tool.model.PropertyModel;
 import org.junit.Before;
@@ -11,8 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author fazazulfikapp
@@ -27,6 +27,7 @@ public class LongParameterMethodsDetectionImplTest {
     private static final Integer FIRST_INDEX = 0;
     private static final Integer SECOND_INDEX = 1;
     private static final Integer LONG_PARAMETER_METHOD_COUNT = 1;
+    private static final Integer NORMAL_METHOD_COUNT = 1;
     private static final Integer EMPTY_COUNT = 0;
 
     private static final Long THRESHOLD = 3L;
@@ -41,29 +42,33 @@ public class LongParameterMethodsDetectionImplTest {
 
     @Test
     public void detect_singleMethod_success() {
-        MethodModel methodModel = longParameterMethodsDetection.detect(methodModels.get(FIRST_INDEX), THRESHOLD);
-        assertNotNull(methodModel);
-        assertEquals(methodModels.get(FIRST_INDEX), methodModel);
+        longParameterMethodsDetection.detect(methodModels.get(FIRST_INDEX), THRESHOLD);
+
+        assertEquals(LONG_PARAMETER_METHOD_COUNT.intValue(), methodModels.get(FIRST_INDEX).getCodeSmells().size());
+        assertEquals(CodeSmellName.LONG_PARAMETER_METHOD, methodModels.get(FIRST_INDEX).getCodeSmells().get(FIRST_INDEX));
     }
 
     @Test
     public void detect_singleMethod_success_notLongParameterMethod() {
-        MethodModel methodModel = longParameterMethodsDetection.detect(methodModels.get(SECOND_INDEX), THRESHOLD);
-        assertNull(methodModel);
+        longParameterMethodsDetection.detect(methodModels.get(SECOND_INDEX), THRESHOLD);
+        assertTrue(methodModels.get(SECOND_INDEX).getCodeSmells().isEmpty());
     }
 
     @Test
     public void detect_multiMethods_success() {
-        List<MethodModel> longParameterMethodModels = longParameterMethodsDetection.detect(methodModels, THRESHOLD);
-        assertEquals(LONG_PARAMETER_METHOD_COUNT.intValue(), longParameterMethodModels.size());
-        assertEquals(methodModels.get(FIRST_INDEX), longParameterMethodModels.get(FIRST_INDEX));
+        longParameterMethodsDetection.detect(methodModels, THRESHOLD);
+
+        assertEquals(LONG_PARAMETER_METHOD_COUNT.longValue(), getLongParameterMethodsCount().longValue());
+        assertEquals(NORMAL_METHOD_COUNT.longValue(), getNormalMethodsCount().longValue());
     }
 
     @Test
     public void detect_multiMethods_success_notLongParameterMethod() {
         methodModels.remove(FIRST_INDEX.intValue());
-        List<MethodModel> longParameterMethodModels = longParameterMethodsDetection.detect(methodModels, THRESHOLD);
-        assertEquals(EMPTY_COUNT.intValue(), longParameterMethodModels.size());
+        longParameterMethodsDetection.detect(methodModels, THRESHOLD);
+
+        assertEquals(EMPTY_COUNT.longValue(), getLongParameterMethodsCount().longValue());
+        assertEquals(NORMAL_METHOD_COUNT.longValue(), getNormalMethodsCount().longValue());
     }
 
     @Test(expected = NullPointerException.class)
@@ -157,5 +162,22 @@ public class LongParameterMethodsDetectionImplTest {
                 .build());
 
         return methodModels;
+    }
+
+    private Long getLongParameterMethodsCount() {
+        return methodModels.stream()
+                .filter(this::isLongParameterMethod)
+                .count();
+    }
+
+    private Long getNormalMethodsCount() {
+        return methodModels.stream()
+                .filter(methodModel -> !isLongParameterMethod(methodModel))
+                .count();
+    }
+
+    private Boolean isLongParameterMethod(MethodModel methodModel) {
+        return methodModel.getCodeSmells()
+                .contains(CodeSmellName.LONG_PARAMETER_METHOD);
     }
 }
